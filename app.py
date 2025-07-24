@@ -301,8 +301,18 @@ col1, col2 = st.columns([3, 2])
 
 with col1:
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 15px;">
-        <h2 style="margin: 0 0 20px 0;color: #000000;">🛒 Your Ingredients</h2>
+    <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); 
+                padding: 25px; 
+                border-radius: 20px; 
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.1);">
+        <h2 style="margin: 0 0 20px 0; 
+                   color: #ffffff; 
+                   font-weight: 700; 
+                   text-align: center;
+                   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
+            <span style="font-size: 35px;">🛒</span> Your Ingredients
+        </h2>
     </div>
     """, unsafe_allow_html=True)
     
