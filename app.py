@@ -97,24 +97,19 @@ except Exception as e:
 with st.sidebar:
     st.header("🎯 Recipe Preferences")
     
-    # Model selection
-    available_models = []
-    try:
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                available_models.append(m.name)
-    except:
-        available_models = ['models/gemini-1.5-flash', 'models/gemini-1.5-pro']
+    # Model selection - Use only currently available models
+    model_options = {
+        "Gemini 1.5 Flash (Fast)": "gemini-1.5-flash",
+        "Gemini 1.5 Pro (Advanced)": "gemini-1.5-pro"
+    }
     
-    if available_models:
-        selected_model = st.selectbox(
-            "🤖 AI Model",
-            available_models,
-            index=0
-        )
-    else:
-        selected_model = 'models/gemini-1.5-flash'
-        st.warning("Using default model: gemini-1.5-flash")
+    selected_model_name = st.selectbox(
+        "🤖 AI Model",
+        list(model_options.keys()),
+        index=0
+    )
+    
+    selected_model = model_options[selected_model_name]
     
     # Cooking time preference
     time_pref = st.select_slider(
@@ -156,15 +151,6 @@ with st.sidebar:
         st.write(f"API Configured: {st.session_state.api_configured}")
         st.write(f"Selected Model: {selected_model}")
         st.write(f"Ingredients Count: {len(st.session_state.ingredients_list)}")
-        
-        if st.button("List All Models"):
-            try:
-                st.write("Available models:")
-                for m in genai.list_models():
-                    st.write(f"- {m.name}")
-                    st.write(f"  Methods: {m.supported_generation_methods}")
-            except Exception as e:
-                st.error(f"Error listing models: {str(e)}")
 
 # Main content area
 col1, col2 = st.columns([3, 2])
@@ -277,14 +263,20 @@ with col2:
                 """
                 
                 try:
-                    # Initialize the model with the correct name
-                    # Remove 'models/' prefix if it exists
-                    model_name = selected_model.replace('models/', '')
+                    # Initialize the model
+                    model = genai.GenerativeModel(selected_model)
                     
-                    model = genai.GenerativeModel(model_name)
+                    # Generate content with safety settings
+                    generation_config = {
+                        "temperature": 0.7,
+                        "top_p": 0.9,
+                        "max_output_tokens": 2048,
+                    }
                     
-                    # Generate content
-                    response = model.generate_content(prompt)
+                    response = model.generate_content(
+                        prompt,
+                        generation_config=generation_config
+                    )
                     
                     if response.text:
                         st.session_state.recipes = response.text
@@ -298,22 +290,30 @@ with col2:
                     # Provide helpful debugging information
                     with st.expander("🔍 Error Details"):
                         st.code(str(e))
-                        st.write("Trying different models...")
                         
-                        # Try fallback models
-                        fallback_models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro']
-                        for fallback in fallback_models:
-                            try:
-                                st.write(f"Trying {fallback}...")
-                                model = genai.GenerativeModel(fallback)
-                                response = model.generate_content(prompt)
-                                if response.text:
-                                    st.session_state.recipes = response.text
-                                    st.success(f"✅ Success with {fallback}!")
-                                    break
-                            except Exception as e2:
-                                st.write(f"❌ {fallback} failed: {str(e2)}")
-                                continue
+                        # If the first model fails, try the other one
+                        if selected_model == "gemini-1.5-pro":
+                            fallback_model = "gemini-1.5-flash"
+                        else:
+                            fallback_model = "gemini-1.5-pro"
+                        
+                        st.write(f"Trying fallback model: {fallback_model}...")
+                        
+                        try:
+                            model = genai.GenerativeModel(fallback_model)
+                            response = model.generate_content(
+                                prompt,
+                                generation_config=generation_config
+                            )
+                            if response.text:
+                                st.session_state.recipes = response.text
+                                st.success(f"✅ Success with {fallback_model}!")
+                        except Exception as e2:
+                            st.error(f"❌ Fallback also failed: {str(e2)}")
+                            st.write("\nPossible solutions:")
+                            st.write("1. Check if your API key is valid")
+                            st.write("2. Try again in a few moments")
+                            st.write("3. Check your API quota at Google AI Studio")
     else:
         st.info("👈 Add ingredients from the left panel to get started!")
         
