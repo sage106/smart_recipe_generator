@@ -302,7 +302,7 @@ col1, col2 = st.columns([3, 2])
 with col1:
     st.markdown("""
     <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 15px;">
-        <h2 style="margin: 0 0 20px 0;">🛒 Your Ingredients</h2>
+        <h2 style="margin: 0 0 20px 0;color: #000000;">🛒 Your Ingredients</h2>
     </div>
     """, unsafe_allow_html=True)
     
