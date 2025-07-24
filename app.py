@@ -331,12 +331,8 @@ if st.session_state.recipes:
     st.markdown("---")
     st.markdown("## 📖 Your Personalized Recipes")
     
-    # Add custom styling for recipe display
-    st.markdown(f"""
-    <div class="recipe-card">
-        {st.session_state.recipes.replace(chr(10), '<br>')}
-    </div>
-    """, unsafe_allow_html=True)
+    # Display recipes in a nice format
+    st.markdown(st.session_state.recipes)
     
     # Action buttons for recipes
     col_save, col_share, col_new = st.columns(3)
@@ -352,7 +348,8 @@ if st.session_state.recipes:
     
     with col_share:
         # Copy to clipboard (using a workaround)
-        st.button("📋 Copy to Clipboard")
+        if st.button("📋 Copy to Clipboard"):
+            st.info("Select the text above and copy manually (Ctrl+C / Cmd+C)")
     
     with col_new:
         if st.button("🔄 Generate New"):
@@ -363,4 +360,10 @@ if st.session_state.recipes:
 st.markdown("---")
 st.markdown(
     """
-    <div style='
+    <div style='text-align: center; color: gray; padding: 20px;'>
+        <p>🍳 Smart Recipe Generator | Powered by Google Gemini AI</p>
+        <p>Made with ❤️ using Streamlit</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
