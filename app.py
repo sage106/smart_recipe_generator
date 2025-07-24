@@ -27,7 +27,7 @@ st.markdown("""
     /* Main Title */
     .main-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: black;
+        color: white;
         padding: 2rem;
         border-radius: 15px;
         text-align: center;
@@ -38,7 +38,7 @@ st.markdown("""
     /* Ingredient Tags */
     .ingredient-tag {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: black;
+        color: white;
         border-radius: 25px;
         padding: 8px 20px;
         margin: 5px;
@@ -56,18 +56,20 @@ st.markdown("""
     
     /* Recipe Cards */
     .recipe-card {
-        background: white;
+        background: #000000;
+        color: white;
         border-radius: 20px;
         padding: 30px;
         margin: 20px 0;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        border: 1px solid #e0e0e0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border: 1px solid #333333;
         transition: all 0.3s ease;
     }
     
     .recipe-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        border: 1px solid #555555;
     }
     
     /* Recipe Title */
@@ -80,10 +82,28 @@ st.markdown("""
         margin-bottom: 15px;
     }
     
+    /* Recipe Generation Section */
+    .recipe-generation-section {
+        background: #000000;
+        color: white;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #333333;
+    }
+    
+    .recipe-generation-section h2 {
+        color: white;
+        margin: 0 0 20px 0;
+    }
+    
+    .recipe-generation-section p, .recipe-generation-section label {
+        color: #e0e0e0 !important;
+    }
+    
     /* Buttons */
     .stButton > button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: black;
+        color: white;
         border: none;
         padding: 10px 25px;
         border-radius: 25px;
