@@ -345,4 +345,28 @@ if st.session_state.recipes:
         st.download_button(
             "💾 Save Recipes",
             st.session_state.recipes,
-            f"recipes_{datetime
+            f"recipes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+            "text/plain"
+        )
+    
+    with col_share:
+        # Copy to clipboard (using a workaround)
+        if st.button("📋 Copy to Clipboard"):
+            st.info("Select the text above and copy manually (Ctrl+C / Cmd+C)")
+    
+    with col_new:
+        if st.button("🔄 Generate New"):
+            st.session_state.recipes = []
+            st.rerun()
+
+# Footer
+st.markdown("---")
+st.markdown(
+    """
+    <div style='text-align: center; color: gray; padding: 20px;'>
+        <p>🍳 Smart Recipe Generator | Powered by Google Gemini AI</p>
+        <p>Made with ❤️ using Streamlit</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
