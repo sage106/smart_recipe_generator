@@ -93,36 +93,28 @@ except Exception as e:
     st.error(f"Error configuring API: {str(e)}")
     st.stop()
 
-# Safety settings for content generation
-safety_settings = [
-    {
-        "category": "HARM_CATEGORY_HARASSMENT",
-        "threshold": "BLOCK_NONE"
-    },
-    {
-        "category": "HARM_CATEGORY_HATE_SPEECH",
-        "threshold": "BLOCK_NONE"
-    },
-    {
-        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        "threshold": "BLOCK_NONE"
-    },
-    {
-        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-        "threshold": "BLOCK_NONE"
-    }
-]
-
-# Generation configuration
-generation_config = {
-    "temperature": 0.7,
-    "top_p": 0.9,
-    "max_output_tokens": 2048,
-}
-
 # Sidebar filters
 with st.sidebar:
     st.header("🎯 Recipe Preferences")
+    
+    # Model selection
+    available_models = []
+    try:
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                available_models.append(m.name)
+    except:
+        available_models = ['models/gemini-1.5-flash', 'models/gemini-1.5-pro']
+    
+    if available_models:
+        selected_model = st.selectbox(
+            "🤖 AI Model",
+            available_models,
+            index=0
+        )
+    else:
+        selected_model = 'models/gemini-1.5-flash'
+        st.warning("Using default model: gemini-1.5-flash")
     
     # Cooking time preference
     time_pref = st.select_slider(
@@ -159,10 +151,20 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Debug info (optional)
+    # Debug info
     with st.expander("🔧 Debug Info"):
         st.write(f"API Configured: {st.session_state.api_configured}")
+        st.write(f"Selected Model: {selected_model}")
         st.write(f"Ingredients Count: {len(st.session_state.ingredients_list)}")
+        
+        if st.button("List All Models"):
+            try:
+                st.write("Available models:")
+                for m in genai.list_models():
+                    st.write(f"- {m.name}")
+                    st.write(f"  Methods: {m.supported_generation_methods}")
+            except Exception as e:
+                st.error(f"Error listing models: {str(e)}")
 
 # Main content area
 col1, col2 = st.columns([3, 2])
@@ -275,12 +277,11 @@ with col2:
                 """
                 
                 try:
-                    # Initialize the model
-                    model = genai.GenerativeModel(
-                        model_name='gemini-pro',
-                        safety_settings=safety_settings,
-                        generation_config=generation_config
-                    )
+                    # Initialize the model with the correct name
+                    # Remove 'models/' prefix if it exists
+                    model_name = selected_model.replace('models/', '')
+                    
+                    model = genai.GenerativeModel(model_name)
                     
                     # Generate content
                     response = model.generate_content(prompt)
@@ -297,20 +298,22 @@ with col2:
                     # Provide helpful debugging information
                     with st.expander("🔍 Error Details"):
                         st.code(str(e))
-                        st.write("Possible solutions:")
-                        st.write("1. Check if your API key is valid")
-                        st.write("2. Ensure you have access to the Gemini API")
-                        st.write("3. Try refreshing the page")
-                        st.write("4. Check your internet connection")
+                        st.write("Trying different models...")
                         
-                        # Try to list available models
-                        try:
-                            st.write("\nAvailable models:")
-                            for m in genai.list_models():
-                                if 'generateContent' in m.supported_generation_methods:
-                                    st.write(f"- {m.name}")
-                        except:
-                            st.write("Could not fetch model list")
+                        # Try fallback models
+                        fallback_models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro']
+                        for fallback in fallback_models:
+                            try:
+                                st.write(f"Trying {fallback}...")
+                                model = genai.GenerativeModel(fallback)
+                                response = model.generate_content(prompt)
+                                if response.text:
+                                    st.session_state.recipes = response.text
+                                    st.success(f"✅ Success with {fallback}!")
+                                    break
+                            except Exception as e2:
+                                st.write(f"❌ {fallback} failed: {str(e2)}")
+                                continue
     else:
         st.info("👈 Add ingredients from the left panel to get started!")
         
@@ -342,28 +345,4 @@ if st.session_state.recipes:
         st.download_button(
             "💾 Save Recipes",
             st.session_state.recipes,
-            f"recipes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
-            "text/plain"
-        )
-    
-    with col_share:
-        # Copy to clipboard (using a workaround)
-        if st.button("📋 Copy to Clipboard"):
-            st.info("Select the text above and copy manually (Ctrl+C / Cmd+C)")
-    
-    with col_new:
-        if st.button("🔄 Generate New"):
-            st.session_state.recipes = []
-            st.rerun()
-
-# Footer
-st.markdown("---")
-st.markdown(
-    """
-    <div style='text-align: center; color: gray; padding: 20px;'>
-        <p>🍳 Smart Recipe Generator | Powered by Google Gemini AI</p>
-        <p>Made with ❤️ using Streamlit</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+            f"recipes_{datetime
