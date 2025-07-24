@@ -38,7 +38,7 @@ st.markdown("""
     /* Ingredient Tags */
     .ingredient-tag {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
+        color: black;
         border-radius: 25px;
         padding: 8px 20px;
         margin: 5px;
